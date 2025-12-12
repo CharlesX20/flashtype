@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <title>FlashType - Typing Practice App</title>
+</head>
+
+<body>
+    <main>
+        <header id="header">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <span class="logo-icon">
+                        <h1>FT</h1>
+                    </span>
+                    <div class="logo-title">
+                        <h2>FlashType</h2>
+                        <small>Created By <b>Charles</b></small>
+                    </div>
+                </a>
+                <div class="theme-selector-container">
+                    <div class="theme-selector-show">
+                        <div class="current-theme" style="background-color: #e63946;"></div>
+                        <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+
+                    <div class="theme-selector-dropdown" id="theme-dropdown">
+                        <div class="theme-option active" data-color-theme="purple-blue">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #8a2be2, #00c6fb);"></div>
+                            <span class="theme-name">Purple Blue</span>
+                        </div>
+                        <div class="theme-option " data-color-theme="red-yellow">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #ff4d4d, #fdcb6e);"></div>
+                            <span class="theme-name">Red Yellow</span>
+                        </div>
+                        <div class="theme-option " data-color-theme="green-blue">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #00b894, #0984e3);"></div>
+                            <span class="theme-name">Green Blue</span>
+                        </div>
+                        <div class="theme-option " data-color-theme="purple-pink">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #6c5ce7, #fd79a8);"></div>
+                            <span class="theme-name">Purple Pink</span>
+                        </div>
+                        <div class="theme-option " data-color-theme="orange-yellow">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #e17055, #fdcb6e);"></div>
+                            <span class="theme-name">Orange Yellow</span>
+                        </div>
+                        <div class="theme-option " data-color-theme="black-white">
+                            <div class="theme-btn" style="background: linear-gradient(135deg, #000000, #ffffff);"></div>
+                            <span class="theme-name">Black White</span>
+                        </div>
+
+                        <div class="mode-toggle">
+                            <span class="mode-toggle-label">Dark Mode</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="dark-mode-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="test-config">
+            <div class="config-section">
+                <div class="config-option">
+                    <label for="language-select"><i class="fas fa-language"></i> Language</label>
+                    <select id="language-select">
+                        <option value="english">English</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="french">French</option>
+                        <option value="german">German</option>
+                        <option value="japanese">Japanese</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-option">
+                    <label for="time-select"><i class="fas fa-clock"></i> Duration</label>
+                    <select id="time-select">
+                        <option value="30">30 seconds</option>
+                        <option value="60">60 seconds</option>
+                        <option value="120">2 minutes</option>
+                    </select>
+                </div>
+                <div class="config-option">
+                    <label for="difficulty-select"><i class="fas fa-signal"></i>Difficulty</label>
+                    <select id="difficulty-select">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="main-content">
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="wpm">0</div>
+                        <div class="stat-label">Word Per Minute</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="timer">60s</div>
+                        <div class="stat-label">Time Left</div>
+                    </div>
+                </div>
+
+                <div class="text-display-container">
+                    <div class="text-display" id="text-display" tabindex="0">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <textarea id="typing-input" placeholder="Click 'Flash Type' and begin typing here..."></textarea>
+                    <div class="input-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Type the text above as fast and accurately as possible
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="start-btn"><i class="fas fa-play"></i> Flash Type</button>
+                    <button class="btn btn-secondary" id="reset-btn"><i class="fas fa-redo"></i> Flash Reset</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="celebration-container" id="celebration-container">
+            <div class="confetti-pieces-container" id="confetti-pieces-container"></div>
+            <div class="celebration-content">
+                <h2>Congratulation⚡🎉</h2>
+                <p>You completed the typing test!</p>
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <span class="final-value" id="final-wpm">0</span>
+                        <span class="final-label">Word Per Minute</span>
+                    </div>
+
+                    <div class="final-stat">
+                        <span class="final-value" id="final-accuracy">0%</span>
+                        <span class="final-label">Accuracy</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="close-celebration">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+
+    </main>
+</body>
+
+</html>
