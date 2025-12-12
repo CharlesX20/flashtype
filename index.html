@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" href="/images/ft-logo.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
     <title>FlashType - Typing Practice App</title>
@@ -124,15 +125,25 @@
                 </div>
 
                 <div class="text-display-container">
-                    <div class="text-display" id="text-display" tabindex="0">
-                        <div class="progress-bar">
+                    <div class="progress-bar">
                             <div class="progress-fill" id="progress-fill"></div>
-                        </div>
+                    </div>
+                    <div class="text-display" id="text-display" tabindex="0">
                     </div>
                 </div>
 
                 <div class="input-container">
                     <textarea id="typing-input" placeholder="Click 'Flash Type' and begin typing here..."></textarea>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span class="progress-label">Words:</span>
+                            <span class="progress-value" id="words-progress">0/0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-label">Characters:</span>
+                            <span class="progress-value" id="chars-progress">0/0</span>
+                        </div>
+                    </div>
                     <div class="input-hint">
                         <i class="fas fa-info-circle"></i>
                         Type the text above as fast and accurately as possible
@@ -161,6 +172,21 @@
                     <div class="final-stat">
                         <span class="final-value" id="final-accuracy">0%</span>
                         <span class="final-label">Accuracy</span>
+                    </div>
+                </div>
+
+                <div class="test-completion-stats">
+                    <div class="completion-stat">
+                        <span class="completion-label">Words Typed:</span>
+                        <span class="completion-value" id="final-words">0/0</span>
+                    </div>
+                    <div class="completion-stat">
+                        <span class="completion-label">Characters:</span>
+                        <span class="completion-value" id="final-characters">0/0</span>
+                    </div>
+                    <div class="completion-stat">
+                        <span class="completion-label">Time Taken:</span>
+                        <span class="completion-value" id="final-time">0s</span>
                     </div>
                 </div>
                 <button class="btn btn-primary" id="close-celebration">

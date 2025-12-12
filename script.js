@@ -307,150 +307,222 @@ const sampleTexts = {
     }
 };
 
-// Elements for Typing App Functionality
 
-// Theme & UI Controls
+// ============================================
+// DOM ELEMENTS - ORGANIZED BY FUNCTION
+// ============================================
+
+// Theme & UI Elements
 const themeSelectorShow = document.querySelector('.theme-selector-show');
 const themeDropdown = document.getElementById('theme-dropdown');
 const themeOptions = document.querySelectorAll('.theme-option');
 const currentTheme = document.querySelector('.current-theme');
 const darkModeToggle = document.getElementById('dark-mode-toggle');
+const body = document.body;
 
-// Test Configuration
+// Test Configuration Elements
 const languageSelect = document.getElementById('language-select');
 const timeSelect = document.getElementById('time-select');
 const difficultySelect = document.getElementById('difficulty-select');
 
-// Stats Display
+// Real-time Stats Elements
 const wpmDisplay = document.getElementById('wpm');
 const accuracyDisplay = document.getElementById('accuracy');
 const timerDisplay = document.getElementById('timer');
 
-// Typing Area
-const textDisplay = document.getElementById('text-display');
+// Progress Tracking Elements
+const wordsProgressDisplay = document.getElementById('words-progress');
+const charsProgressDisplay = document.getElementById('chars-progress');
 const progressFill = document.getElementById('progress-fill');
+
+// Typing Interface Elements
+const textDisplay = document.getElementById('text-display');
 const typingInput = document.getElementById('typing-input');
 
-// Control Buttons
+// Control Button Elements
 const startButton = document.getElementById('start-btn');
 const resetButton = document.getElementById('reset-btn');
 
-// Results Modal
+// Celebration Modal Elements
 const celebrationContainer = document.getElementById('celebration-container');
 const closeCelebrationButton = document.getElementById('close-celebration');
 const confettiPiecesContainer = document.getElementById('confetti-pieces-container');
 
-// Results Stats 
+// Final Results Elements
 const finalWpmDisplay = document.getElementById('final-wpm');
-const finalAccuracyDisplay = document.getElementById('final-accuracy'); 
-
-// Body for theme management
-const body = document.body;
+const finalAccuracyDisplay = document.getElementById('final-accuracy');
+const finalWordsDisplay = document.getElementById('final-words');
+const finalCharactersDisplay = document.getElementById('final-characters');
+const finalTimeDisplay = document.getElementById('final-time');
 
 // ============================================
-// THEME MANAGEMENT SYSTEM
+// TEST STATE VARIABLES
 // ============================================
 
-// Initialize current color theme
 let currentColorTheme = 'purple-blue';
-
-// Toggle theme selector dropdown visibility
-themeSelectorShow.addEventListener('click', function (e){
-    e.stopPropagation();
-    themeSelectorShow.classList.toggle('active');
-    themeDropdown.classList.toggle('show');
-});
-
-// Handle theme selection from dropdown
-themeOptions.forEach(option => {
-    option.addEventListener('click', function (e){
-        e.stopPropagation();
-
-        // Remove active class from all theme options
-        themeOptions.forEach(opt => opt.classList.remove('active'));
-        // Add active class to selected theme
-        this.classList.add('active');
-
-        // Update current color theme and apply to body
-        currentColorTheme = this.getAttribute('data-color-theme');
-        body.setAttribute('data-color-theme', currentColorTheme);
-
-        // Update current theme indicator with selected color
-        const themeBtn = this.querySelector('.theme-btn');
-        currentTheme.style.background = themeBtn.style.background;
-
-        // Close dropdown after selection
-        themeSelectorShow.classList.remove('active');
-        themeDropdown.classList.remove('show');
-    });
-});
-
-// Toggle dark/light mode
-darkModeToggle.addEventListener('change', function(){
-    if(this.checked){
-        document.body.setAttribute('data-theme', 'dark');
-    } else{
-        document.body.setAttribute('data-theme', 'light');
-    }
-    
-    // Apply current color theme to dark/light mode
-    document.body.setAttribute('data-color-theme', currentColorTheme);
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(){
-    themeSelectorShow.classList.remove('active');
-    themeDropdown.classList.remove('show');
-});
-
-// Prevent dropdown from closing when clicking inside it
-themeDropdown.addEventListener('click', function(e){
-    e.stopPropagation();
-});
-
-// ============================================
-// TYPING TEST STATE VARIABLES
-// ============================================
-
 let testStarted = false;
 let testCompleted = false;
 let timerInterval;
 let timeLeft;
 let totalTime;
 let startTime;
+let endTime;
 let correctChars = 0;
 let totalChars = 0;
 let currentText = '';
 let currentIndex = 0;
+let totalWords = 0;
+let typedWords = 0;
+let totalTextLength = 0;
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Counts exact words in text based on spaces
+ * @param {string} text - Text to count words from
+ * @returns {number} - Exact word count
+ */
+function countExactWords(text) {
+    // Remove extra spaces, split by spaces, filter out empty strings
+    const words = text.trim().replace(/\s+/g, ' ').split(' ');
+    return words.filter(word => word.length > 0).length;
+}
+
+/**
+ * Counts words in typed input in real-time
+ * @param {string} text - Typed input text
+ * @returns {number} - Current word count
+ */
+function countTypedWords(text) {
+    if (!text.trim()) return 0;
+    const words = text.trim().split(/\s+/);
+    return words.filter(word => word.length > 0).length;
+}
+
+/**
+ * Updates progress stats display
+ */
+function updateProgressStats() {
+    wordsProgressDisplay.textContent = `${typedWords}/${totalWords}`;
+    charsProgressDisplay.textContent = `${totalChars}/${totalTextLength}`;
+}
+
+/**
+ * Gets random value between min and max
+ */
+function getRandomValue(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+/**
+ * Updates timer display with proper formatting
+ */
+function updateTimerDisplay() {
+    timerDisplay.textContent = `${timeLeft}s`;
+}
+
+// ============================================
+// THEME MANAGEMENT SYSTEM
+// ============================================
+
+// Toggle theme selector dropdown
+themeSelectorShow.addEventListener('click', function(e) {
+    e.stopPropagation();
+    themeSelectorShow.classList.toggle('active');
+    themeDropdown.classList.toggle('show');
+});
+
+// Handle theme selection
+themeOptions.forEach(option => {
+    option.addEventListener('click', function(e) {
+        e.stopPropagation();
+
+        // Remove active class from all options
+        themeOptions.forEach(opt => opt.classList.remove('active'));
+        
+        // Add active class to selected option
+        this.classList.add('active');
+
+        // Update current theme
+        currentColorTheme = this.getAttribute('data-color-theme');
+        body.setAttribute('data-color-theme', currentColorTheme);
+
+        // Update theme indicator color
+        const themeBtn = this.querySelector('.theme-btn');
+        currentTheme.style.background = themeBtn.style.background;
+
+        // Close dropdown
+        themeSelectorShow.classList.remove('active');
+        themeDropdown.classList.remove('show');
+    });
+});
+
+// Dark/Light mode toggle
+darkModeToggle.addEventListener('change', function() {
+    if (this.checked) {
+        body.setAttribute('data-theme', 'dark');
+    } else {
+        body.setAttribute('data-theme', 'light');
+    }
+    body.setAttribute('data-color-theme', currentColorTheme);
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function() {
+    themeSelectorShow.classList.remove('active');
+    themeDropdown.classList.remove('show');
+});
+
+// Prevent dropdown close when clicking inside
+themeDropdown.addEventListener('click', function(e) {
+    e.stopPropagation();
+});
 
 // ============================================
 // TEST INITIALIZATION FUNCTION
 // ============================================
 
-function initializeTest(){
-    // Get selected language and difficulty
+function initializeTest() {
+    // Get user selections
     const language = languageSelect.value;
     const difficulty = difficultySelect.value;
     
-    // Select random text from sampleTexts based on language and difficulty
+    // Get random text from selected category
     const textArray = sampleTexts[language][difficulty];
     currentText = textArray[Math.floor(Math.random() * textArray.length)];
+    
+    // Calculate exact statistics from text
+    totalWords = countExactWords(currentText);
+    totalTextLength = currentText.length;
+    typedWords = 0;
 
-    // Clear text display and create character spans
+    // Clear text display
     textDisplay.innerHTML = '';
-    for(let i = 0; i < currentText.length; i++){
+    
+    // Create character spans with proper space handling
+    for (let i = 0; i < currentText.length; i++) {
         const charSpan = document.createElement('span');
         charSpan.className = 'character';
-        charSpan.textContent = currentText[i];
+        
+        // Handle spaces specially
+        if (currentText[i] === ' ') {
+            charSpan.innerHTML = '&nbsp;';
+            charSpan.classList.add('space-character');
+        } else {
+            charSpan.textContent = currentText[i];
+        }
+        
         textDisplay.appendChild(charSpan);
     }
 
     // Set first character as current
-    if(textDisplay.children.length > 0){
+    if (textDisplay.children.length > 0) {
         textDisplay.children[0].classList.add('current');
     }
 
-    // Reset test state variables
+    // Reset all test state variables
     testStarted = false;
     testCompleted = false;
     currentIndex = 0;
@@ -462,27 +534,35 @@ function initializeTest(){
     typingInput.disabled = true;
     startButton.disabled = false;
     resetButton.disabled = false;
+    
+    // Reset stats displays
     wpmDisplay.textContent = '0';
     accuracyDisplay.textContent = '0%';
     progressFill.style.width = '0%';
+    
+    // Update progress stats
+    updateProgressStats();
 
-    // Set timer based on selected duration
+    // Setup timer
     totalTime = parseInt(timeSelect.value);
     timeLeft = totalTime;
     updateTimerDisplay();
 
-    // Clear existing timer interval if any
-    if(timerInterval){
+    // Clear any existing timer
+    if (timerInterval) {
         clearInterval(timerInterval);
     }
+    
+    // Scroll to top of text display
+    textDisplay.scrollTop = 0;
 }
 
 // ============================================
 // TEST CONTROL FUNCTIONS
 // ============================================
 
-function startTest(){
-    if(testStarted) return;
+function startTest() {
+    if (testStarted) return;
 
     testStarted = true;
     startTime = new Date();
@@ -494,33 +574,184 @@ function startTest(){
     timerInterval = setInterval(updateTimer, 1000);
 }
 
-function updateTimer(){
+function updateTimer() {
     timeLeft--;
     updateTimerDisplay();
 
     // End test when time runs out
-    if(timeLeft <= 0){
+    if (timeLeft <= 0) {
         endTest();
     }
 }
 
-function updateTimerDisplay(){
-    timerDisplay.textContent = `${timeLeft}s`;
-}
-
-function endTest(){
+function endTest() {
     testCompleted = true;
+    endTime = new Date();
     clearInterval(timerInterval);
     typingInput.disabled = true;
 
     // Calculate final statistics
-    const endTime = new Date();
-    const timeTaken = Math.max((endTime - startTime) / 1000 / 60, 0.0167);
-    const finalWpm = Math.round((correctChars / 5) / timeTaken);
-    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+    
+    // FIX: Ensure minimum time to prevent division by very small numbers
+    const timeTakenSeconds = Math.max((endTime - startTime) / 1000, 0.1);
+    
+    // Final WPM calculation with safety checks
+    let finalWpm = 0;
+    
+    // FIX: Only calculate WPM if sufficient time has passed
+    if (timeTakenSeconds > 0.1) {
+        finalWpm = Math.round((correctChars / 5) / (timeTakenSeconds / 60));
+        // FIX: Cap WPM at 999 to prevent unrealistic numbers
+        finalWpm = Math.min(finalWpm, 999);
+    }
+    
+    // Final accuracy calculation with safety checks
+    let accuracy = 0;
+    
+    // FIX: Only calculate accuracy when characters were typed
+    if (totalChars > 0) {
+        accuracy = Math.round((correctChars / totalChars) * 100);
+        // FIX: Cap accuracy at 100% to prevent exceeding 100%
+        accuracy = Math.min(accuracy, 100);
+    }
+    
+    // Final word count
+    typedWords = countTypedWords(typingInput.value);
 
-    // Show celebration modal with results
-    showCelebration(finalWpm, accuracy);
+    // Show celebration with all results
+    // FIX: Round time to nearest second for display
+    showCelebration(finalWpm, accuracy, typedWords, totalChars, Math.round(timeTakenSeconds));
+}
+
+// ============================================
+// TYPING INPUT HANDLER
+// ============================================
+
+function handleTypingInput(e) {
+    if (!testStarted || testCompleted) return;
+
+    const inputValue = typingInput.value;
+
+    // Handle backspace/delete
+    if (e.inputType === 'deleteContentBackward') {
+        if (currentIndex > 0) {
+            currentIndex--;
+
+            const prevCharSpan = textDisplay.children[currentIndex];
+            const currentCharSpan = textDisplay.children[currentIndex + 1];
+            
+            // Update character highlighting
+            prevCharSpan.classList.remove('current', 'incorrect', 'correct');
+            prevCharSpan.classList.add('current');
+            
+            if (currentCharSpan) {
+                currentCharSpan.classList.remove('current');
+            }
+
+            // Adjust character counts
+            if (currentIndex < totalChars) {
+                if (prevCharSpan.classList.contains('correct')) {
+                    correctChars--;
+                }
+                totalChars = Math.max(0, totalChars - 1);
+            }
+
+            // Update word count
+            typedWords = countTypedWords(inputValue);
+
+            // Update progress bar to go back
+            const progress = Math.min(100, (currentIndex / currentText.length) * 100);
+            progressFill.style.width = `${progress}%`;
+            
+            // Update all displays
+            updateRealTimeStats();
+            updateProgressStats();
+        }
+        return;
+    }
+
+    // Handle regular typing
+    if (currentIndex < currentText.length) {
+        const typedChar = inputValue[currentIndex];
+        const currentCharSpan = textDisplay.children[currentIndex];
+
+        // Check character accuracy
+        if (typedChar === currentText[currentIndex]) {
+            currentCharSpan.classList.add('correct');
+            currentCharSpan.classList.remove('incorrect');
+            correctChars++;
+        } else {
+            currentCharSpan.classList.add('incorrect');
+            currentCharSpan.classList.remove('correct');
+        }
+
+        // Move to next character
+        currentCharSpan.classList.remove('current');
+        totalChars++;
+        currentIndex++;
+
+        // Update word count
+        typedWords = countTypedWords(inputValue);
+        
+        // Set next character as current
+        if (currentIndex < currentText.length) {
+            const nextCharSpan = textDisplay.children[currentIndex];
+            nextCharSpan.classList.add('current');
+            
+            // Auto-scroll to keep current character visible
+            nextCharSpan.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+        }
+
+        // Update progress bar
+        const progress = Math.min(100, (currentIndex / currentText.length) * 100);
+        progressFill.style.width = `${progress}%`;
+
+        // Update all real-time displays
+        updateRealTimeStats();
+        updateProgressStats();
+
+        // Check if text is complete
+        if (currentIndex === currentText.length) {
+            endTest();
+        }
+    }
+}
+
+// ============================================
+// REAL-TIME STATISTICS UPDATER
+// ============================================
+
+function updateRealTimeStats() {
+    const currentTime = new Date();
+    const timeElapsedSeconds = Math.max((currentTime - startTime) / 1000, 0.1);
+    
+    // Calculate current WPM with safety checks
+    let currentWpm = 0;
+    
+    // FIX: Only calculate WPM after brief delay to prevent unrealistic spikes
+    if (timeElapsedSeconds > 0.1) { 
+        currentWpm = Math.round((correctChars / 5) / (timeElapsedSeconds / 60));
+        // FIX: Cap WPM at 999 to prevent unrealistic numbers
+        currentWpm = Math.min(currentWpm, 999);
+    }
+    
+    // Calculate current accuracy with safety checks
+    let currentAccuracy = 0;
+    
+    // FIX: Only calculate accuracy when there are typed characters
+    if (totalChars > 0) {
+        currentAccuracy = Math.round((correctChars / totalChars) * 100);
+        // FIX: Cap accuracy at 100% to prevent exceeding 100%
+        currentAccuracy = Math.min(currentAccuracy, 100);
+    }
+
+    // Update displays
+    wpmDisplay.textContent = currentWpm;
+    accuracyDisplay.textContent = currentAccuracy + '%';
 }
 
 // ============================================
@@ -535,28 +766,24 @@ const confettiColors = [
     'var(--confetti-color-5)'
 ];
 
-function getRandomValue(min, max){
-    return Math.random() * (max - min) + min;
-}
-
-function createConfettiPiece(){
+function createConfettiPiece() {
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
 
-    // Set random confetti properties using CSS custom properties
+    // Set random properties for variety
     piece.style.setProperty('--size', `${getRandomValue(8, 18)}px`);
     piece.style.setProperty('--confetti-color', confettiColors[Math.floor(Math.random() * confettiColors.length)]);
     piece.style.setProperty('--start-x', `${getRandomValue(0, 100)}%`);
     piece.style.setProperty('--rotation', `${getRandomValue(0, 360)}deg`);
     piece.style.setProperty('--duration', `${getRandomValue(3, 7)}s`);
     piece.style.setProperty('--delay', `${getRandomValue(0, 0.5)}s`);
-    piece.style.setProperty('--lateral-start', `${getRandomValue(-100, 100)}px`); // Allow movement in both directions
+    piece.style.setProperty('--lateral-start', `${getRandomValue(-100, 100)}px`);
     piece.style.setProperty('--lateral-end', `${getRandomValue(-200, 200)}px`);
 
-    // Add confetti piece to container
+    // Add to container
     confettiPiecesContainer.appendChild(piece);
 
-    // Remove confetti piece after animation completes
+    // Clean up after animation
     piece.addEventListener('animationend', () => {
         piece.remove();
     });
@@ -566,114 +793,27 @@ function createConfettiPiece(){
 // CELEBRATION MODAL FUNCTIONS
 // ============================================
 
-function showCelebration(wpm, accuracy){
-    // Update final statistics in celebration modal
+function showCelebration(wpm, accuracy, typedWordsCount, typedCharsCount, timeTakenSeconds) {
+    // Update all final statistics
     finalWpmDisplay.textContent = wpm;
     finalAccuracyDisplay.textContent = accuracy + '%';
+    finalWordsDisplay.textContent = `${typedWordsCount}/${totalWords}`;
+    finalCharactersDisplay.textContent = `${typedCharsCount}/${totalTextLength}`;
+    finalTimeDisplay.textContent = `${timeTakenSeconds}s`;
+    
+    // Show celebration modal
     celebrationContainer.classList.add('show');
 
-    // Create confetti burst
-    for(let i = 0; i < 70; i++){
+    // Create confetti celebration
+    for (let i = 0; i < 70; i++) {
         createConfettiPiece();
     }
 }
 
-function closeCelebration(){
+function closeCelebration() {
     celebrationContainer.classList.remove('show');
     confettiPiecesContainer.innerHTML = '';
     initializeTest();
-}
-
-// ============================================
-// TYPING INPUT HANDLING
-// ============================================
-
-function handleTypingInput(e){
-    if(!testStarted || testCompleted) return;
-
-    const inputValue = typingInput.value;
-    const currentCharSpan = textDisplay.children[currentIndex];
-
-    // Handle backspace/delete key
-    if(e.inputType === 'deleteContentBackward'){
-        if(currentIndex > 0){
-            currentIndex--;
-
-            const prevCharSpan = textDisplay.children[currentIndex];
-            prevCharSpan.classList.remove('current', 'incorrect');
-            prevCharSpan.classList.add('current');
-            
-            if(currentCharSpan){
-                currentCharSpan.classList.remove('current');
-            }
-
-            // Adjust character counts if needed
-            if(currentIndex < totalChars){
-                if(prevCharSpan.classList.contains('correct')){
-                    correctChars--;
-                }
-
-                totalChars = Math.max(0, totalChars - 1);
-            }
-
-            updateRealTimeStats();
-        }
-
-        return;
-    }
-
-    // Handle regular typing input
-    if(currentIndex < currentText.length){
-        const typedChar = inputValue[currentIndex];
-
-        // Check if typed character matches expected character
-        if(typedChar == currentText[currentIndex]){
-            currentCharSpan.classList.add('correct');
-            currentCharSpan.classList.remove('incorrect');
-            correctChars++;
-        }
-        else{
-            currentCharSpan.classList.add('incorrect');
-            currentCharSpan.classList.remove('correct');
-        }
-
-        // Move to next character
-        currentCharSpan.classList.remove('current');
-        totalChars++;
-        currentIndex++;
-
-        // Set next character as current if available
-        if(currentIndex < currentText.length){
-            textDisplay.children[currentIndex].classList.add('current');
-        }
-
-        // Update progress bar
-        const progress = (currentIndex / currentText.length) * 100;
-        progressFill.style.width = `${progress}%`;
-
-        // Update real-time statistics
-        updateRealTimeStats();
-
-        // End test if all characters are typed
-        if(currentIndex === currentText.length){
-            endTest();
-        }
-    }
-}
-
-// ============================================
-// REAL-TIME STATISTICS UPDATER
-// ============================================
-
-function updateRealTimeStats(){
-    const currentTime = new Date();
-    const timeElapsed = Math.max((currentTime - startTime) / 1000 / 60, 0.0167);
-    const currentWpm = Math.round((correctChars / 5) / timeElapsed);
-    const currentAccuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-
-    // Update WPM and accuracy displays
-    wpmDisplay.textContent = currentWpm;
-    accuracyDisplay.textContent = currentAccuracy + '%';
 }
 
 // ============================================
@@ -690,10 +830,10 @@ closeCelebrationButton.addEventListener('click', closeCelebration);
 // Typing input handler
 typingInput.addEventListener('input', handleTypingInput);
 
-// Test configuration change handlers
+// Test configuration changes
 languageSelect.addEventListener('change', initializeTest);
 difficultySelect.addEventListener('change', initializeTest);
-timeSelect.addEventListener('change', function(){
+timeSelect.addEventListener('change', function() {
     totalTime = parseInt(this.value);
     timeLeft = totalTime;
     updateTimerDisplay();
@@ -703,21 +843,21 @@ timeSelect.addEventListener('change', function(){
 // Initialize test on page load
 document.addEventListener('DOMContentLoaded', initializeTest);
 
-// Handle Tab key in typing input (prevents default behavior)
-typingInput.addEventListener('keydown', function(e){
-    if(e.key === 'Tab'){
+// Handle Tab key for indentation
+typingInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
         e.preventDefault();
         const start = this.selectionStart;
         const end = this.selectionEnd;
 
-        // Insert tab character at cursor position
+        // Insert tab character
         this.value = this.value.substring(0, start) + '\t' + this.value.substring(end);
-
-        // Move cursor after inserted tab
+        
+        // Update cursor position
         this.selectionStart = this.selectionEnd = start + 1;
 
-        // Trigger input event to update character tracking
-        const inputEvent = new Event('input', {bubbles: true});
+        // Trigger input event
+        const inputEvent = new Event('input', { bubbles: true });
         this.dispatchEvent(inputEvent);
     }
 });

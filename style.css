@@ -492,11 +492,15 @@ input:checked+.toggle-slider::before{
 
 .text-display{
     height: 210px;
-    overflow-y: hidden;
+    overflow-y: auto;
     line-height: 1.8;
     font-style: italic;
     color: var(--text-color);
     margin-bottom: 1rem;
+    padding-right: 10px; 
+    /* Hide scrollbar for modern browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
 }
 
 .text-display::-webkit-scrollbar{
@@ -513,18 +517,32 @@ input:checked+.toggle-slider::before{
 
 .progress-bar{
     width: 100%;
-    height: 4px;
+    height: 8px;
     background: var(--task-bg);
-    border-radius: 2px;
+    border-radius: 4px;
     overflow: hidden;
+    margin-bottom: 1.2rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progress-fill{
     height: 100%;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 2px;
-    transition: width 0.3s ease;
+    border-radius: 4px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 0%;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 4px;
 }
 
 .input-container{
@@ -554,6 +572,39 @@ input:checked+.toggle-slider::before{
     background: var(--task-bg);
     color: var(--text-muted);
     cursor: not-allowed;
+}
+
+.progress-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 0.8rem;
+    padding: 0.8rem 1rem;
+    background: var(--task-bg);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    font-family: 'Courier New', monospace;
+}
+
+.progress-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.progress-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
+}
+
+.progress-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
 }
 
 .input-hint{
@@ -618,9 +669,18 @@ input:checked+.toggle-slider::before{
     transform: none;
 }
 
-.character{
+
+.character {
     transition: all 0.1s ease;
     border-radius: 2px;
+    display: inline-block;
+    min-width: 1px;
+}
+
+.character.space-character {
+    background-color: transparent;
+    border-bottom: 1px dotted var(--text-muted);
+    opacity: 0.7;
 }
 
 .character.correct{
@@ -735,6 +795,40 @@ input:checked+.toggle-slider::before{
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+.test-completion-stats {
+    background: var(--task-bg);
+    border-radius: var(--border-radius);
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--card-border);
+    width: 100%;
+}
+
+.completion-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.completion-stat:last-child {
+    border-bottom: none;
+}
+
+.completion-label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.completion-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: 'Courier New', monospace;
 }
 
 .confetti-pieces-container{
